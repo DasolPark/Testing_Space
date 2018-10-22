@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<title>AJAX를 이용한 SPA웹(Single Page Application)</title>
+<title>학교 식당 메뉴 관리자 페이지(AJAX, SPA)</title>
 <style>
 	.wrapper{
 		width:100%;
@@ -35,6 +35,9 @@
 		$(".menuInput button:nth-child(2)").click(function(){
 			getList();
 		});
+		$(".menuInput button:nth-child(3)").click(function(){
+			delMenu();
+		});
 	});
 
 	function addMenu(){
@@ -49,7 +52,7 @@
 		});
 	}
 	function getList(){
-		console.log('call getList()');
+		console.log('Called getList()');
 		$.get("/process/listMenu", function(data, status){
 			var array=JSON.parse(data);
 			var str="<table width='100%' border='1px'>";
@@ -72,6 +75,16 @@
 			$("#menuList").append(str);
 		});
 	}
+	function delMenu(){
+		$.post('/process/delMenu', {
+				date:$("#fdate").val(),
+				part:$("#fpart").val()
+			}, function(data, status){
+				if(status == 'success'){
+					console.log("delMenu transfer success");
+				}
+		});
+	}
 </script>
 </head>
 <body>
@@ -91,6 +104,7 @@
 			<div>
 				<button>등록</button>
 				<button>리스트</button>
+				<button>삭제</button>
 			</div>
 		</div>
 		<div id="menuList"></div>
