@@ -6,6 +6,7 @@ var static = require('serve-static');
 var mongoose = require('mongoose');
 var Schema = mongoose.Schema;
 var app = express();
+var fs = require('fs');
 
 app.use(bodyParser.urlencoded({extended:true}));
 app.use(bodyParser.json());
@@ -50,6 +51,13 @@ app.get("/process/listMenu", function(req, res){
 function listMenu(req, res) {
   CafeteriaModel.find({}, function(err, cafeterias){
     console.log('cafeterias.length: '+cafeterias.length);
+    //리스트를 불러올 때마다 메뉴 리스트 저장(get list & save list)
+    fs.writeFile('./uploads/menuList', cafeterias, function(err) {
+      if(err) {
+          return console.log(err);
+      }
+      console.log("cafeterias file was saved!");
+    });
     if (err) {
       callback(err, null);
       return;
