@@ -1,0 +1,99 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>AJAX를 이용한 SPA웹(Single Page Application)</title>
+<style>
+	.wrapper{
+		width:100%;
+		height:550px;
+		margin:auto;
+		border:2px dotted blue;
+		position:relative;
+		overflow:hidden;
+	}
+	.MenuInput{
+		width:15%;
+		height:100%;
+		background:pink;
+		text-align:center;
+		float:left;
+	}
+	#menuList{
+		width:70%;
+		height:100%;
+		background:dodgerblue;
+		float:left;
+	}
+</style>
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+<script>
+	$(function(){
+		$(".menuInput button:nth-child(1)").click(function(){
+			addMenu();
+		});
+		$(".menuInput button:nth-child(2)").click(function(){
+			getList();
+		});
+	});
+
+	function addMenu(){
+		$.post('/process/addMenu', {
+            date:$("#fdate").val(),
+            part:$("#fpart").val(),
+            menu:$("#fmenu").val()
+		}, function(data, status){
+			if(status=="success"){
+				console.log("addMenu transfer success");
+			}
+		});
+	}
+	function getList(){
+		console.log('call getList()');
+		$.get("/process/listMenu", function(data, status){
+			var array=JSON.parse(data);
+			var str="<table width='100%' border='1px'>";
+			str=str+"<tr>";
+			str=str+"<td>날짜</td>";
+			str=str+"<td>업종</td>";
+			str=str+"<td>메뉴</td>";
+			str=str+"</tr>";
+			for(var i=0; i<array.length; i++){
+				var obj=array[i];
+
+				str=str+"<td>"+obj.date+"</td>";
+				str=str+"<td>"+obj.part+"</td>";
+				str=str+"<td>"+obj.menu+"</td>";
+				str=str+"</tr>";
+			}
+			str=str+"</table>";
+
+			$("#menuList").empty();
+			$("#menuList").append(str);
+		});
+	}
+</script>
+</head>
+<body>
+	<div class="wrapper">
+		<div class="menuInput">
+			<form>
+				<div>
+					<input type="text" id="fdate" name="fdate" placeholder="날짜 입력...">
+				</div>
+				<div>
+					<input type="text" id="fpart" name="fpart" placeholder="업종 입력...">
+				</div>
+				<div>
+					<input type="text" id="fmenu" name="fmenu" placeholder="메뉴 입력...">
+				</div>
+			</form>
+			<div>
+				<button>등록</button>
+				<button>리스트</button>
+			</div>
+		</div>
+		<div id="menuList"></div>
+	</div>
+</body>
+</html>
