@@ -1,4 +1,5 @@
 var express = require('express');
+var fs = require('fs');
 var session = require('express-session');
 var MySQLStore = require('express-mysql-session')(session);
 var bodyParser = require('body-parser');
@@ -34,6 +35,12 @@ app.use(session({
 app.use(passport.initialize());
 app.use(passport.session());//인증할 때 세션을 사용하겠다(반드시 app.use(session({})))뒤에 나와야한다
 
+app.get('/aribot', function(req, res){
+  fs.readFile('public/index.html',(err,data)=>{
+      res.end(data);
+  });
+});
+
 /** Login + Authentication + Logout**/
 var auth = require('./routes/login')(conn, hasher, passport, LocalStrategy);
 app.use('/auth', auth);
@@ -45,6 +52,13 @@ app.use('/', welcome);
 /** Register **/
 var register = require('./routes/register')(hasher, conn);
 app.use('/auth', register);
+
+/** Menu Manager **/
+app.get('/manager/menu', function(req, res){
+  fs.readFile('public/adminMenu.html',(err, data)=>{
+    res.end(data);
+  });
+});
 
 app.listen(3003, function(){//수정 필요
   console.log('Connected 3003 port!!!');

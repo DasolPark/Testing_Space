@@ -2,26 +2,15 @@
 module.exports = function(hasher, conn){
 	var express = require('express');
 	var router = express.Router();
+var fs = require('fs');
 
 	router.get('/register', function(req, res){
-	  var output = `
-	  <h1>Register</h1>
-	  <form action="/auth/register" method="post">
-	    <p>
-	      <input type="text" name="username" placeholder="username">
-	    </p>
-	    <p>
-	      <input type="password" name="password" placeholder="password">
-	    </p>
-	    <p>
-	      <input type="text" name="displayName" placeholder="displayName">
-	    </p>
-	    <p>
-	      <input type="submit">
-	    </p>
-	  </form>
-	  `;
-	  res.send(output);
+		fs.readFile('public/register.html',(err,data)=>{
+			if(err) console.log(err);
+			else{
+				res.end(data);
+			}
+		});
 	});
 	router.post('/register', function(req, res){
 	  hasher({password: req.body.password}, function(err, pass, salt, hash){
