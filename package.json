@@ -15,6 +15,7 @@
     "fs": "0.0.1-security",
     "http": "0.0.0",
     "http-errors": "~1.6.2",
+    "jsonfile": "^5.0.0",
     "md5": "^2.2.1",
     "mongoose": "^5.3.4",
     "morgan": "~1.9.0",

@@ -15,12 +15,13 @@ var passport = require('passport');//인증 모듈
 var LocalStrategy = require('passport-local').Strategy;
 var mysql = require('mysql');
 var conn = mysql.createConnection({
-  host  : '0.0.0.0',//수정 필요
+  host  : 'local',//수정 필요
   user  : 'root',
-  password: 'ari610',
+  password: '111111',
   database: 'o2'
 });
 conn.connect();
+var jsonfile = require('jsonfile');
 
 app.use(bodyParser.urlencoded({extended:true}));
 app.use(bodyParser.json());
@@ -31,10 +32,10 @@ app.use(session({
   resave: false,//세션id를 새로 접속할 때마다 재발급하지 않는다
   saveUninitialized: true,//세션을 id를 세션을 실제로 사용하기 전까지는 발급하지 말아라
   store: new MySQLStore({
-    host: '0.0.0.0',//수정 필요
+    host: 'local',//수정 필요
     port: 3306,
     user: 'root',
-    password: 'ari610',
+    password: '111111',
     database: 'o2'
   })
 }));
@@ -118,13 +119,18 @@ app.get("/process/listMenu", function(req, res){
 function listMenu(req, res) {
   CafeteriaModel.find({}, function(err, cafeterias){
     console.log('cafeterias.length: '+cafeterias.length);
-    //리스트를 불러올 때마다 메뉴 리스트 저장(get list & save list)
-    fs.writeFile('./uploads/menuList.json', cafeterias, function(err) {
-      if(err) {
-          return console.log(err);
-      }
-      console.log("cafeterias file was saved!");
+    const file = './uploads/menuList.json'
+    const obj = cafeterias;
+    jsonfile.writeFile(file, obj, function(err){
+      if(err) console.log(err);
     });
+    //리스트를 불러올 때마다 메뉴 리스트 저장(get list & save list)
+    // fs.writeFile('./uploads/menuList.json', cafeterias, function(err) {
+    //   if(err) {
+    //       return console.log(err);
+    //   }
+    //   console.log("cafeterias file was saved!");
+    // });
     if (err) {
       callback(err, null);
       return;
@@ -194,7 +200,7 @@ function createCafeteriaSchema() {
   console.log('CafeteriaModel 정의되었음');
 }
 
-http.createServer(app).listen(80, function(){
-  console.log('서버가 시작되었습니다. 포트 : ' + '80');
+http.createServer(app).listen(3003, function(){
+  console.log('서버가 시작되었습니다. 포트 : ' + '3003');
   connectDB();
 });
