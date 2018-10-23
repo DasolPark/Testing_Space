@@ -57,8 +57,8 @@ function addMenu(paramDate, paramPart, paramMenu){
 ////메뉴 읽기
 app.get("/process/listMenu", function(req, res){
   console.log('/process/listMenu 호출되었음.');
-	listMenu(req, res);
-	console.log('List Menu Success');
+  listMenu(req, res);
+  console.log('List Menu Success');
 });
 //메뉴 읽기 함수
 function listMenu(req, res) {
@@ -75,8 +75,8 @@ function listMenu(req, res) {
       callback(err, null);
       return;
     } else {
-    	res.writeHead(200, {"Content-Type":"text/html"});
-    	res.end(JSON.stringify(cafeterias));
+      res.writeHead(200, {"Content-Type":"text/html"});
+      res.end(JSON.stringify(cafeterias));
     }
   });
 }

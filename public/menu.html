@@ -31,6 +31,8 @@
 	$(function(){
 		$(".menuInput button:nth-child(1)").click(function(){
 			addMenu();
+			setTimer(5000);
+			getList();
 		});
 		$(".menuInput button:nth-child(2)").click(function(){
 			getList();
@@ -42,7 +44,6 @@
 			delAllMenu();
 		});
 	});
-
 	function addMenu(){
 		$.post('/process/addMenu', {
             date:$("#fdate").val(),
@@ -70,7 +71,6 @@
 				str=str+"</tr>";
 			}
 			str=str+"</table>";
-
 			$("#menuList").empty();
 			$("#menuList").append(str);
 		});
@@ -78,8 +78,6 @@
 	function delMenu(){
 		$.post('/process/delMenu', {
 				number:$("#num").val()
-				// date:$("#fdate").val(),
-				// part:$("#fpart").val()
 			});
 	}
 	function delAllMenu(){
