@@ -6,7 +6,7 @@ var static = require('serve-static');
 var mongoose = require('mongoose');
 var Schema = mongoose.Schema;
 var app = express();
-var fs = require('fs');
+var fs = require('fs');//메뉴를 JSON파일로 바꿔주기 위한 모듈 불러옴
 
 app.use(bodyParser.urlencoded({extended:true}));
 app.use(bodyParser.json());
@@ -15,7 +15,8 @@ app.use('/public', static(path.join(__dirname, 'public')));
 var database;
 var CafeteriaSchema;
 var CafeteriaModel;
-//메뉴 추가
+var number = 0;
+//메뉴 추가 라우터
 app.post("/process/addMenu", function(req, res){
   console.log('/process/addMenu 호출되었음.');
 
@@ -26,28 +27,40 @@ app.post("/process/addMenu", function(req, res){
   addMenu(paramDate, paramPart, paramMenu);
   console.log('Add Menu Success!');
 });
+////메뉴 추가 함수
 function addMenu(paramDate, paramPart, paramMenu){
-  var cafeteria = new CafeteriaModel({
-      'date':paramDate,
-      'part':paramPart,
-      'menu':paramMenu
-      }
-    );
 
-  cafeteria.save(function(err) {
-    if (err) {
-      callback(err, null);
-      return;
+    var cafeteria;
+    if(number == 0){
+      cafeteria = new CafeteriaModel({
+          'number': number++,
+          'date':paramDate,
+          'part':paramPart,
+          'menu':paramMenu
+      });
+    } else {
+      cafeteria = new CafeteriaModel({
+          'number': number++,
+          'date':paramDate,
+          'part':paramPart,
+          'menu':paramMenu
+      });     
     }
-    console.log(paramDate+ ', '+paramPart+ ', '+ paramMenu+ 'document 추가되었습니다.');
-  });
+
+    cafeteria.save(function(err) {
+      if (err) {
+        console.log(err);
+      }
+      console.log(paramDate+ ', '+paramPart+ ', '+ paramMenu+ 'document 추가되었습니다.');
+    });
 }
-//메뉴 읽기
+////메뉴 읽기
 app.get("/process/listMenu", function(req, res){
   console.log('/process/listMenu 호출되었음.');
 	listMenu(req, res);
 	console.log('List Menu Success');
 });
+//메뉴 읽기 함수
 function listMenu(req, res) {
   CafeteriaModel.find({}, function(err, cafeterias){
     console.log('cafeterias.length: '+cafeterias.length);
@@ -67,28 +80,34 @@ function listMenu(req, res) {
     }
   });
 }
-//메뉴 삭제
+////메뉴 삭제
 app.post("/process/delMenu", function(req, res){
-  var paramDate = req.body.date;
-  var paramPart = req.body.part;
+  var paramNum = req.body.number;
 
   CafeteriaModel.findOneAndDelete({
-    'date': paramDate,
-    'part': paramPart
+    'number': paramNum
     }, function(err, cafeterias){
+      if(err) { 
+        console.log(err); 
+      } else {
+        console.log(paramNum+'번 document가 삭제되었습니다.');
+      }
+  });
+});
+//메뉴 전체 삭제
+app.post("/process/delAllMenu", function(req, res){
+  CafeteriaModel.deleteMany({}, function(err, cafeterias){
       if(err) { 
         console.err(err); 
       } else {
-        console.log(paramDate+ ', '+paramPart + ' document가 삭제되었습니다.');
+        console.log('document가 전체 삭제되었습니다.');
       }
   });
 });
 
 function connectDB() {
-  // 데이터베이스 연결 정보
   var databaseUrl = 'mongodb://localhost:27017/local';
 
-  // 데이터베이스 연결
   console.log('데이터베이스 연결을 시도합니다.');
   mongoose.Promise = global.Promise;
   mongoose.connect(databaseUrl);
@@ -110,9 +129,10 @@ function connectDB() {
 function createCafeteriaSchema() {
 
   CafeteriaSchema = new Schema({
+    number: {type: Number},
     date: {type: Number},
-    part: {type: String, default: 0},
-    menu: {type: String, default: 0},
+    part: {type: String, default: ''},
+    menu: {type: String, default: ''}
   });
   console.log('CafeteriaSchema 정의되었음');
 

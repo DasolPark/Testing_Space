@@ -38,6 +38,9 @@
 		$(".menuInput button:nth-child(3)").click(function(){
 			delMenu();
 		});
+		$(".menuInput button:nth-child(4)").click(function(){
+			delAllMenu();
+		});
 	});
 
 	function addMenu(){
@@ -45,10 +48,6 @@
             date:$("#fdate").val(),
             part:$("#fpart").val(),
             menu:$("#fmenu").val()
-		}, function(data, status){
-			if(status=="success"){
-				console.log("addMenu transfer success");
-			}
 		});
 	}
 	function getList(){
@@ -57,13 +56,14 @@
 			var array=JSON.parse(data);
 			var str="<table width='100%' border='1px'>";
 			str=str+"<tr>";
+			str=str+"<td>번호</td>";
 			str=str+"<td>날짜</td>";
 			str=str+"<td>업종</td>";
 			str=str+"<td>메뉴</td>";
 			str=str+"</tr>";
 			for(var i=0; i<array.length; i++){
 				var obj=array[i];
-
+				str=str+"<td>"+obj.number+"</td>";
 				str=str+"<td>"+obj.date+"</td>";
 				str=str+"<td>"+obj.part+"</td>";
 				str=str+"<td>"+obj.menu+"</td>";
@@ -77,13 +77,13 @@
 	}
 	function delMenu(){
 		$.post('/process/delMenu', {
-				date:$("#fdate").val(),
-				part:$("#fpart").val()
-			}, function(data, status){
-				if(status == 'success'){
-					console.log("delMenu transfer success");
-				}
-		});
+				number:$("#num").val()
+				// date:$("#fdate").val(),
+				// part:$("#fpart").val()
+			});
+	}
+	function delAllMenu(){
+		$.post('/process/delAllMenu');
 	}
 </script>
 </head>
@@ -92,19 +92,23 @@
 		<div class="menuInput">
 			<form>
 				<div>
-					<input type="text" id="fdate" name="fdate" placeholder="날짜 입력...">
+					<input type="text" id="num" name="num" placeholder="삭제를 원하시는 번호를 입력해주세요.">
 				</div>
 				<div>
-					<input type="text" id="fpart" name="fpart" placeholder="업종 입력...">
+					<input type="text" id="fdate" name="fdate" placeholder="날짜를 입력해주세요(ex 10월 15일은 1015)">
 				</div>
 				<div>
-					<input type="text" id="fmenu" name="fmenu" placeholder="메뉴 입력...">
+					<input type="text" id="fpart" name="fpart" placeholder="업종을 입력해주세요(ex 분식은 분식)">
+				</div>
+				<div>
+					<input type="text" id="fmenu" name="fmenu" placeholder="메뉴를 모두 입력해주세요. 그리고 ,로 구분해주세요.">
 				</div>
 			</form>
 			<div>
 				<button>등록</button>
 				<button>리스트</button>
 				<button>삭제</button>
+				<button>전체 삭제</button>
 			</div>
 		</div>
 		<div id="menuList"></div>
