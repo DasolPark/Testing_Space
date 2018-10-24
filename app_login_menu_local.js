@@ -15,7 +15,7 @@ var passport = require('passport');//인증 모듈
 var LocalStrategy = require('passport-local').Strategy;
 var mysql = require('mysql');
 var conn = mysql.createConnection({
-  host  : 'local',//수정 필요
+  host  : 'localhost',//수정 필요
   user  : 'root',
   password: '111111',
   database: 'o2'
@@ -32,7 +32,7 @@ app.use(session({
   resave: false,//세션id를 새로 접속할 때마다 재발급하지 않는다
   saveUninitialized: true,//세션을 id를 세션을 실제로 사용하기 전까지는 발급하지 말아라
   store: new MySQLStore({
-    host: 'local',//수정 필요
+    host: 'localhost',//수정 필요
     port: 3306,
     user: 'root',
     password: '111111',
