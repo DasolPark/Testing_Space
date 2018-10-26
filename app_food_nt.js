@@ -16,6 +16,7 @@ var database;
 var CafeteriaSchema;
 var CafeteriaModel;
 var number = 0;
+
 //메뉴 추가 라우터
 app.post("/process/addMenu", function(req, res){
   console.log('/process/addMenu 호출되었음.');
@@ -27,24 +28,23 @@ app.post("/process/addMenu", function(req, res){
   addMenu(paramDate, paramPart, paramMenu);
   console.log('Add Menu Success!');
 });
-////메뉴 추가 함수
+//메뉴 추가 함수
 function addMenu(paramDate, paramPart, paramMenu){
-
     var cafeteria;
     if(number == 0){
       cafeteria = new CafeteriaModel({
-          'number': number++,
+          'number': number,
           'date':paramDate,
           'part':paramPart,
           'menu':paramMenu
       });
     } else {
       cafeteria = new CafeteriaModel({
-          'number': number++,
+          'number': number,
           'date':paramDate,
           'part':paramPart,
           'menu':paramMenu
-      });     
+      });
     }
 
     cafeteria.save(function(err) {
@@ -54,7 +54,7 @@ function addMenu(paramDate, paramPart, paramMenu){
       console.log(paramDate+ ', '+paramPart+ ', '+ paramMenu+ 'document 추가되었습니다.');
     });
 }
-////메뉴 읽기
+//메뉴 읽기
 app.get("/process/listMenu", function(req, res){
   console.log('/process/listMenu 호출되었음.');
   listMenu(req, res);
@@ -64,6 +64,7 @@ app.get("/process/listMenu", function(req, res){
 function listMenu(req, res) {
   CafeteriaModel.find({}, function(err, cafeterias){
     console.log('cafeterias.length: '+cafeterias.length);
+    number = cafeterias.length;
     //리스트를 불러올 때마다 메뉴 리스트 저장(get list & save list)
     fs.writeFile('./uploads/menuList', cafeterias, function(err) {
       if(err) {
@@ -110,7 +111,7 @@ function connectDB() {
 
   console.log('데이터베이스 연결을 시도합니다.');
   mongoose.Promise = global.Promise;
-  mongoose.connect(databaseUrl);
+  mongoose.connect(databaseUrl, {useNewUrlParser: true});
   database = mongoose.connection;
 
   database.on('error', console.error.bind(console, 'mongoose connection error.'));

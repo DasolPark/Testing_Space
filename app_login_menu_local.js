@@ -45,7 +45,7 @@ app.use(passport.session());//인증할 때 세션을 사용하겠다(반드시 
 var database;
 var CafeteriaSchema;
 var CafeteriaModel;
-var number = 0;
+var number;
 
 //index 페이지
 app.get('/aribot', function(req, res){
@@ -84,18 +84,18 @@ app.post("/process/addMenu", function(req, res){
 });
 ////메뉴 추가 함수
 function addMenu(paramDate, paramPart, paramMenu){
-
+    console.log('메뉴 번호는 '+ number+ '부터 시작합니다.');
     var cafeteria;
     if(number == 0){
       cafeteria = new CafeteriaModel({
-          'number': number++,
+          'number': number,
           'date':paramDate,
           'part':paramPart,
           'menu':paramMenu
       });
     } else {
       cafeteria = new CafeteriaModel({
-          'number': number++,
+          'number': number,
           'date':paramDate,
           'part':paramPart,
           'menu':paramMenu
@@ -119,18 +119,13 @@ app.get("/process/listMenu", function(req, res){
 function listMenu(req, res) {
   CafeteriaModel.find({}, function(err, cafeterias){
     console.log('cafeterias.length: '+cafeterias.length);
+    number = cafeterias.length;
     const file = './uploads/menuList.json'
-    const obj = cafeterias;
-    jsonfile.writeFile(file, obj, function(err){
+    const list = cafeterias;
+
+    jsonfile.writeFile(file, {list}, function(err){
       if(err) console.log(err);
     });
-    //리스트를 불러올 때마다 메뉴 리스트 저장(get list & save list)
-    // fs.writeFile('./uploads/menuList.json', cafeterias, function(err) {
-    //   if(err) {
-    //       return console.log(err);
-    //   }
-    //   console.log("cafeterias file was saved!");
-    // });
     if (err) {
       callback(err, null);
       return;
@@ -170,7 +165,7 @@ function connectDB() {
 
   console.log('데이터베이스 연결을 시도합니다.');
   mongoose.Promise = global.Promise;
-  mongoose.connect(databaseUrl);
+  mongoose.connect(databaseUrl, {useNewUrlParser: true});
   database = mongoose.connection;
 
   database.on('error', console.error.bind(console, 'mongoose connection error.'));

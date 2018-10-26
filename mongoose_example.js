@@ -2,7 +2,7 @@
 var mongoose = require('mongoose');
 var Schema = mongoose.Schema;
 
-mongoose.connect('mongodb://localhost:27017/mongotest');
+mongoose.connect('mongodb://localhost:27017/mongotest', {useNewUrlParser: true});
 mongoose.connection.on('open', function(){
   console.log('Mongoose connected.');
 });
