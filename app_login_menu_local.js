@@ -99,7 +99,7 @@ function addMenu(paramDate, paramPart, paramMenu){
           'date':paramDate,
           'part':paramPart,
           'menu':paramMenu
-      });     
+      });
     }
 
     cafeteria.save(function(err) {
@@ -119,6 +119,11 @@ app.get("/process/listMenu", function(req, res){
 function listMenu(req, res) {
   CafeteriaModel.find({}, function(err, cafeterias){
     console.log('cafeterias.length: '+cafeterias.length);
+    // if(cafeterias.length == 0){
+    //   number = cafeterias.length;
+    // } else if(cafeterias[(cafeterias.length)-1].number == cafeterias.length) {
+    //   number = (cafeterias.length)+1;
+    // }
     number = cafeterias.length;
     const file = './uploads/menuList.json'
     const list = cafeterias;
@@ -142,8 +147,8 @@ app.post("/process/delMenu", function(req, res){
   CafeteriaModel.findOneAndDelete({
     'number': paramNum
     }, function(err, cafeterias){
-      if(err) { 
-        console.log(err); 
+      if(err) {
+        console.log(err);
       } else {
         console.log(paramNum+'번 document가 삭제되었습니다.');
       }
@@ -152,8 +157,8 @@ app.post("/process/delMenu", function(req, res){
 //메뉴 전체 삭제
 app.post("/process/delAllMenu", function(req, res){
   CafeteriaModel.deleteMany({}, function(err, cafeterias){
-      if(err) { 
-        console.err(err); 
+      if(err) {
+        console.err(err);
       } else {
         console.log('document가 전체 삭제되었습니다.');
       }
@@ -165,7 +170,12 @@ function connectDB() {
 
   console.log('데이터베이스 연결을 시도합니다.');
   mongoose.Promise = global.Promise;
-  mongoose.connect(databaseUrl, {useNewUrlParser: true});
+  mongoose.connect(databaseUrl,
+    {
+      useNewUrlParser: true,
+      poolSize: 10
+    }
+  );
   database = mongoose.connection;
 
   database.on('error', console.error.bind(console, 'mongoose connection error.'));
