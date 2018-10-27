@@ -5,6 +5,7 @@ var bodyParser = require('body-parser');
 var static = require('serve-static');
 var mongoose = require('mongoose');
 var Schema = mongoose.Schema;
+var autoIncrement = require('mongoose-auto-increment');//add autoInc
 var app = express();
 var fs = require('fs');//메뉴를 JSON파일로 바꿔주기 위한 모듈 불러옴
 var session = require('express-session');
@@ -86,21 +87,12 @@ app.post("/process/addMenu", function(req, res){
 function addMenu(paramDate, paramPart, paramMenu){
     console.log('메뉴 번호는 '+ number+ '부터 시작합니다.');
     var cafeteria;
-    if(number == 0){
-      cafeteria = new CafeteriaModel({
-          'number': number,
-          'date':paramDate,
-          'part':paramPart,
-          'menu':paramMenu
-      });
-    } else {
-      cafeteria = new CafeteriaModel({
-          'number': number,
-          'date':paramDate,
-          'part':paramPart,
-          'menu':paramMenu
-      });
-    }
+
+    cafeteria = new CafeteriaModel({
+        'date':paramDate,
+        'part':paramPart,
+        'menu':paramMenu
+    });
 
     cafeteria.save(function(err) {
       if (err) {
@@ -119,11 +111,7 @@ app.get("/process/listMenu", function(req, res){
 function listMenu(req, res) {
   CafeteriaModel.find({}, function(err, cafeterias){
     console.log('cafeterias.length: '+cafeterias.length);
-    // if(cafeterias.length == 0){
-    //   number = cafeterias.length;
-    // } else if(cafeterias[(cafeterias.length)-1].number == cafeterias.length) {
-    //   number = (cafeterias.length)+1;
-    // }
+
     number = cafeterias.length;
     const file = './uploads/menuList.json'
     const list = cafeterias;
@@ -177,6 +165,7 @@ function connectDB() {
     }
   );
   database = mongoose.connection;
+  autoIncrement.initialize(database);//add autoInc
 
   database.on('error', console.error.bind(console, 'mongoose connection error.'));
   database.on('open', function () {
@@ -201,6 +190,7 @@ function createCafeteriaSchema() {
   });
   console.log('CafeteriaSchema 정의되었음');
 
+  CafeteriaSchema.plugin(autoIncrement.plugin, {model: 'Cafeteria', field: 'number'});//add autoInc
   CafeteriaModel = mongoose.model('Cafeteria', CafeteriaSchema);
   console.log('CafeteriaModel 정의되었음');
 }
