@@ -46,7 +46,6 @@ app.use(passport.session());//인증할 때 세션을 사용하겠다(반드시 
 var database;
 var CafeteriaSchema;
 var CafeteriaModel;
-var number;
 
 //index 페이지
 app.get('/aribot', function(req, res){
