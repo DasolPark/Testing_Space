@@ -1,0 +1,241 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>1.AJAX를 이용한 SPA웹(Single Page Application)</title>
+<style>
+	.wrapper{
+		width:100%;
+		height:550px;
+		background:yellow;/*지울 것임*/
+		border:2px dotted blue;
+		position:relative; /*현재 html에 부여된 본연의 위치속성*/
+		left:-100%;
+		overflow:hidden;
+	}
+	.regist_area{
+		width:15%;
+		height:100%;
+		float:left;
+		background:pink;/*지울 것임*/
+		text-align:center;
+	}
+	#list_area{
+		width:70%;
+		height:100%;
+		float:left;
+		background:skyblue;/*지울 것임*/
+	}
+	.detail_area{
+		width:15%;
+		height:100%;
+		float:left;
+		background:dodgerblue;/*지울 것임*/
+	}
+</style>
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+<script>
+	$(function(){
+		$(".wrapper").animate({
+			"left":"0px"
+		});
+
+		$(".regist_area button:nth-child(1)").click(function(){
+			regist();
+		});
+
+		$(".regist_area button:nth-child(2)").click(function(){
+			getList();
+		});
+
+		$(".detail_area button:nth-child(1)").click(function(){//수정
+			edit();
+		});
+
+		$(".detail_area button:nth-child(2)").click(function(){//삭제
+			del();
+		});
+		//tr에 마우스 올려놓으면 하이라이트 효과 주기
+/*		$("#list_area tr").on("mouseover", function(){
+			$(this).css("background", "yellow");
+		});
+*/
+	});
+	function regist(){
+		//MySQL에 등록(X), 따라서, 서버에 요청을 해야 한다.
+		//왜? 웹서버는 DB연동 능력이 있으므로.(간접 등록임)
+		//Node.js서버에 부탁하자!!
+		//day6은 이제부터 '웹사이트'라고 생각
+
+		//네이버의 메인페이지를 요청하되, 동기방식으로 해본다!!
+		//location.href="http://naver.com";//링크..(동기)
+
+		//현재 페이지를 그대로 유지하기 위해(without reloading)
+		//비동기(Asynchronous)방식으로 서버에 요청하겠다!!
+		//방법 2가지
+		//1.순수 JavaScript의 AJAX기술
+		//2.jQuery가 지원하는 AJAX기술
+		//http프로토콜에서 클라이언트가 서버에 요청을 시도할 때는
+		//데이터를 전송할 수 있고, 이 전송방법에는 총 5가지유형이 있다.
+		//RESTful이 아니라면 2가지만 알아도 됨.
+		//1)Get:url헤더를 통해 데이터를 전송하는 방법
+		//		편지봉투에 데이터를 보내는 것과 같다.(다 노출됨)
+		//		보안이 중요하지 않고, 전송할 데이터량이 많이 않을 때 사용
+		//2)Post:스트림을 통해 데이터를 전송하는 방법
+		//		전송할 데이터량이 크고, 보안이 중요할 때 사용
+
+		$.post("/member/regist", {//데이터를 전송할 때는 가운데에 ,,칸과 {}JSON추가
+				id:$("#id").val(),
+				pw:$("#pw").val(),
+				name:$("#name").val()
+			}, function(data, status){
+				//alert(data+", "+status);
+				if(status=="success"){
+					//리스트 영역에 테이블로 데이터를 갱신..
+					//새로고침 없이(=비동기로..)
+				}
+		});
+
+		//동기방식도 한번 경험해본다!!
+		/*
+		$("form").attr({
+			"action":"/member/regist",
+			"method":"post"
+		});
+		$("form").submit();//서버에 전송이 일어남!!
+		*/
+	}
+	//리스트 가져오기
+	function getList(){
+		$.get("/member/list", function(data, status){
+			var array=JSON.parse(data); //인수로 전달된 문자열을 다시 객체로 복원
+			//alert(array.length); //넘겨받은 데이터를 테이블로 출력!!!
+			var str="<table width='100%' border='1px'>";
+			str=str+"<tr style='background:#ffdd00'>";
+			str=str+"<td>member2_id</td>";
+			str=str+"<td>id</td>";
+			str=str+"<td>pw</td>";
+			str=str+"<td>name</td>";
+			str=str+"</tr>";
+			for(var i=0; i<array.length; i++){
+				var obj=array[i];//배열을 {member2_id: 5, id: 'dassol90', pw: '1234', name: '박다솔짱2'}(JSON)으로 받을래
+				str=str+"<tr onClick=\"getDetail("+obj.member2_id+")\">";
+				str=str+"<td>"+obj.member2_id+"</td>";
+				str=str+"<td>"+obj.id+"</td>";
+				str=str+"<td>"+obj.pw+"</td>";
+				str=str+"<td>"+obj.name+"</td>";
+				str=str+"</tr>";
+			}
+			str=str+"</table>";
+
+			$("#list_area").empty();//하위 자식 요소를 싹~~ 지운다!
+			$("#list_area").append(str);
+		});
+	}
+
+	//상세정보 조회하기
+	function getDetail(member2_id){
+		//alert("상세정보 원해?");
+		/*AJAX를 구현하는 방법 2가지
+		1)순수 자바스크립트 코드로 구현
+		2)제이쿼리로 구현(우린 이걸로 구현)
+		*/
+		//alert(member2_id+"정보를 보고싶어?");
+		$.get("/member/detail", {member2_id:member2_id}, function(data, status){
+			//alert(data);//UI에 반영하자
+			//[{"member2_id":4,"id":"bigbang","pw":"big","name":"Gdragon"}]
+			var array=JSON.parse(data);
+			var obj=array[0];
+
+			$("#member2_id").val(obj.member2_id);
+			$("#id2").val(obj.id);
+			$("#pw2").val(obj.pw);
+			$("#name2").val(obj.name);
+
+		});
+	}
+
+	//삭제요청
+	function del(){
+		if(confirm("삭제하시겠습니까?")){//언제나 안의 구문이 먼저 수행됨. 컨펌이 먼저임.
+			//서버에 삭제 요청!! 두 방식 다 가능은 하겠으나,
+			//데이터를 대량으로 전송할게 아니라면, 보안상 중요하지 않다면
+			//get으로 요청한다.
+			var n=$("#member2_id").val();
+			$.get("/member/del", {member2_id:n}, function(data, status){
+				if(data=="ok"){//지워진 것임
+					getList();
+				}else{//지우기 실패 fail
+					alert("삭제 실패ㅜㅜ");
+				}
+			});
+		}
+	}
+
+	function edit(){
+		if(confirm("수정하시겠어요?")){
+			//우리는 hidden에다가 member2_id를 숨겨놓았으므로,
+			//form 양식 태그를 post로 전송하면 모두 파라미터로 전송이 된다.
+			$.post("/member/edit", {
+					member2_id:$("#member2_id").val(),
+					id:$("#id2").val(),
+					pw:$("#pw2").val(),
+					name:$("#name2").val()
+				}, function(data, status){
+					if(data=="ok"){
+						alert("수정되었습니다");
+						getList();
+					}else{
+						alert("수정 실패ㅜㅜ");
+					}
+			});
+		}
+	}
+</script>
+</head>
+<body>
+	<div class="wrapper">
+		<div class="regist_area">
+			<form>
+				<div><!--스마트폰 때문에 div속에 넣어줌-->
+					<input type="text" id="id" name="id" placeholder="아이디 입력...">
+				</div>
+				<div>
+					<input type="password" id="pw" name="pw" placeholder="비밀번호 입력...">
+				</div>
+				<div>
+					<input type="text" id="name" name="name" placeholder="이름 입력...">
+				</div>
+			</form>
+			<div>
+				<button>등록</button>
+				<button>리스트</button>
+			</div>
+		</div>
+		<div id="list_area"></div>
+		<div class="detail_area">
+			<form>
+				<!--
+					hidden의 사용목적: 개발 시 파라미터를 숨겨서 전송해야 할 때 유용
+					왜 숨기나? 개발목적에만 사용되어야 하고, 일반 사용자가 알 수도 없거니와,
+					조작할 수도 없게 하기 위함...
+				-->
+				<input type="hidden" id="member2_id" name="member2_id">
+				<div><!--스마트폰 때문에 div속에 넣어줌-->
+					<input type="text" id="id2" name="id2">
+				</div>
+				<div>
+					<input type="password" id="pw2" name="pw2">
+				</div>
+				<div>
+					<input type="text" id="name2" name="name2">
+				</div>
+			</form>
+			<div>
+				<button>수정</button>
+				<button>삭제</button>
+			</div>
+		</div>
+	</div>
+</body>
+</html>
