@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta http-equiv="X-UA-Compatible" content="ie=edge">
+  <title>빈강의실 예약시스템</title>
+  <style>
+    .container{
+      width:100%;
+      display:flex;
+      flex-direction:column;
+      justify-content:center;
+      align-items:center;
+    }
+    header{width:100%; background:dodgerblue; text-align:center;}
+  </style>
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+</head>
+<body>
+  <div class="container">
+    <header>
+      <h2>빈 강의실 예약시스템</h2>
+    </header>
+    <section class="userInput">
+      <form>
+        날짜선택<select id="select">
+          <option value="1107">1107</option>
+          <option value="1108">1108</option>
+          <option value="1109">1109</option>
+          <option value="1110">1110</option>
+        </select><br>
+        건물명<input type="text" id="rClass" name="rClass" placeholder="수리관" value="수리관"><br>
+        강의실<input type="text" id="rNum" name="rNum" placeholder="605" value="605">
+      </form>
+      <button class="ajaxsend">조회</button>
+    </section>
+
+    <div class="result"></div>
+  </div>
+
+  <script>
+    var rDate,rClass,rNum,resultArray,rDay;
+    var array = [];
+    var arrayt = ["9:00~9:50","10:00~10:50","11:00~11:50","12:00~12:50","13:00~13:50","14:00~14:50","15:00~15:50","16:00~16:50","17:00~17:50","17:55~18:45","18:50~19:40","19:45~20:35","20:40~21:30","21:35~22:25"];
+
+      document.querySelector('.ajaxsend').addEventListener('click',function(){
+        rDate = document.getElementById('select').value;
+        rClass = document.getElementById('rClass').value;
+        rNum = document.getElementById('rNum').value;
+        rDay = getInputDayLabel(rDate);
+        sendAjax('http://localhost:3003/reservation/list',rDate,rClass,rNum,rDay);
+      });
+
+      function sendAjax(url,rDate,rClass,rNum,rDay){
+        var data = {'rDate':rDate, 'rClass':rClass, 'rNum':rNum, 'rDay':rDay};
+        data = JSON.stringify(data);
+        var xhr = new XMLHttpRequest();
+        xhr.open('POST',url);
+        xhr.setRequestHeader('Content-Type',"application/json");
+        xhr.send(data);
+        xhr.addEventListener('load',function(){
+          <!-- console.log(xhr.responseText); -->
+          var result = JSON.parse(xhr.responseText);
+          var resultDiv = document.querySelector('.result');
+          // if(result.result !== 'ok') resultDiv.innerHTML = "your email is Not Found";
+          // else resultDiv.innerHTML = result.name;
+          result = replaceResult(result);
+          resultDiv.innerHTML = result;
+        });
+      }
+      function replaceAll(str,searchStr,replaceStr){
+        return str.split(searchStr).join(replaceStr);
+      }
+      function replaceResult(result){
+        var answer = "";
+        for(var i = 0; i < result.length; i++){
+          answer += result[i].timeTable+"/";
+        }
+        resultArray = answer.split("/");
+        // for(var i = 0; i < resultArray.length -1; i++){
+        //   answer += resultArray[i] + "<br>";
+        // }
+        array = [1,2,3,4,5,6,7,8,9,10,11,12,13,14];
+        for(var i = 0; i < array.length; i++){
+          for(var j = 0; j < resultArray.length; j++){
+            if(array[i] == resultArray[j]){
+              array[i] = 0; // 수업이 있는 강의실 0으로 처리
+            }
+          }
+        }
+        resultArray = [];
+        answer = "<table width = '100%' style = 'text-align:center'><tr><th>건물</th><th>강의실</th><th>교시</th><th>시간</th><th>예약</th></tr>";
+
+        for(var i = 0; i < array.length; i++){
+          if(array[i] != 0){
+            resultArray[i] = "<tr><td>"+rClass +"</td><td>"+ rNum +"</td><td>"+  array[i] +"</td><td>"+ arrayt[i] +"</td><td><button type=\"button\" name=\"button\" onClick = rClick("+array[i]+")>예약하기</button></td>"+"</tr>";
+            answer += resultArray[i];
+          }
+        }
+        answer += "</table>";
+
+        return answer;
+      }
+
+      function rClick(rtime){
+        var str = rDate+rClass+rNum+rtime;
+        $.post('/reservation/sub', {
+          key:str
+        },function(data, status){
+				  if(data=="OK"){
+            alert("예약되셨습니다.");
+				  }else{
+            alert("이미 예약되어 있습니다.");
+          }
+		    });
+      }
+      function getInputDayLabel(rDate) {
+
+          var week = new Array('SUN', 'MON', 'TUE', 'WED', 'THU', 'FRI', 'SAT');
+          var str='2018-'+rDate[0]+rDate[1]+"-"+rDate[2]+rDate[3];
+
+          var today = new Date(str).getDay();
+          var todayLabel = week[today];
+
+          return todayLabel;
+      }
+  </script>
+</body>
+</html>
