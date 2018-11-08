@@ -53,12 +53,12 @@
         mm='0'+mm
     }
     // yyyy = 2018;
-    // mm = 5;
+    // mm = 11;
     // initDd = 20;
     //위는 테스트용 숫자
     initPlus = 0;
     initDd = dd;
-    for(var i=0; i<20; i++){
+    for(var i=0; i<14; i++){
       var dInput = parseInt(initDd)+((initPlus)++);
       var option = new OptionTag(yyyy, mm, dInput);
       if(((mm) == 12) && (getLastDate(yyyy, mm) == dInput)){//12월 31일의 경우
@@ -213,7 +213,8 @@
       }
       function getInputDayLabel(rDate) {
           var week = new Array('SUN', 'MON', 'TUE', 'WED', 'THU', 'FRI', 'SAT');
-          var str = '2018-' + rDate[0] + rDate[1] + "-" + rDate[2] + rDate[3];
+          // var str = '2018-' + rDate[0] + rDate[1] + "-" + rDate[2] + rDate[3];
+          str = rDate;
           var today = new Date(str).getDay();
           var todayLabel = week[today];
 

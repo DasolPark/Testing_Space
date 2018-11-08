@@ -51,6 +51,7 @@ app.post("/reservation/sub", function(req, res){
 });
 //빈 강의실 조회 요청
 app.post("/reservation/list", function(req, res){
+	console.log(rDate+' '+rClass+' '+rNum+' '+rDay);
   var rDate=req.body.rDate;//날짜(일자, 요일 분리 필요)
   var rClass=req.body.rClass;//강의실
   var rNum=req.body.rNum;//호수
