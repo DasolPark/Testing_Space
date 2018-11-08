@@ -20,10 +20,8 @@ var pool=mysql.createPool({
 });
 
 app.get('/reservation', function(req, res){
-  console.log('reser hi');
   res.sendFile(__dirname + '/public/reservation.html');
 });
-
 //빈 강의실 예약 요청
 app.post("/reservation/sub", function(req, res){
 	console.log("클라이언트의 post전송을 받았습니다!!");
@@ -31,7 +29,6 @@ app.post("/reservation/sub", function(req, res){
 	var key=req.body.key;//날짜(일자, 요일 분리 필요)
 	// var rClass=req.body.rClass;//강의실
 	// var rNum=req.body.rNum;//호수
-
   pool.getConnection(function(error, con){
     if(error){
       console.log(error);
@@ -82,9 +79,7 @@ app.post("/reservation/list", function(req, res){
 					if(err){
 						console.log(err);
 					} else {
-          // res.writeHead(200, {"Content-Type":"text/html"});
-          // console.log(JSON.stringify(result));
-          res.end(JSON.stringify(result));
+          	res.end(JSON.stringify(result));
         	}
 				}
         con.release();
