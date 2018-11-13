@@ -138,7 +138,7 @@
     var rDate, rClass, rNum, resultArray, rDay;
     var array = [];
     var answer="";
-    var rStr;
+    var rStr,stId;
     var num = [];
     var arrayt = ["9:00~9:50","10:00~10:50","11:00~11:50","12:00~12:50","13:00~13:50","14:00~14:50","15:00~15:50","16:00~16:50","17:00~17:50","17:55~18:45","18:50~19:40","19:45~20:35","20:40~21:30","21:35~22:25"];
 
@@ -149,7 +149,6 @@
         rNum = document.getElementById('room').value;
         rDay = getInputDayLabel(rDate);
         answer = ""
-        alert(answer);
         // answer = ""
         // answer = "<table width = '100%' style = 'text-align:center'  class='table table-sm'><thead><tr><th scope='col'>건물</th><th scope='col'>강의실</th><th scope='col'>교시</th><th scope='col'>시간</th><th scope='col'>예약</th></tr></thead><tbody>";
         // var resultDiv = document.querySelector('.result');
@@ -157,7 +156,7 @@
         sendAjax('http://localhost:3003/reservation/list', rDate, rClass, rNum, rDay);
 
       });
-      function sibal(url,rDate,rClass,rNum,array,result){
+      function resAjax(url,rDate,rClass,rNum,array,result){
         var data = {'rDate':rDate, 'rClass':rClass, 'rNum':rNum, 'rDay':rDay, 'array':array};
         data = JSON.stringify(data);
         var xhr = new XMLHttpRequest();
@@ -171,10 +170,8 @@
           // if(result.result !== 'ok') resultDiv.innerHTML = "your email is Not Found";
           // else resultDiv.innerHTML = result.name;
             console.log(result2);
-          if(!result2){
             reservation(array,!result2);
-            console.log(array,result2);
-          }
+
 
             console.log(answer);
            resultDiv.innerHTML = answer;
@@ -193,10 +190,10 @@
           var resultDiv = document.querySelector('.result');
           // if(result.result !== 'ok') resultDiv.innerHTML = "your email is Not Found";
           // else resultDiv.innerHTML = result.name;
-          console.log(result);
+          // console.log(result);
           result = replaceResult(result);
-          console.log(result);
-          console.log(array);
+          // console.log(result);
+          // console.log(array);
           num = [];
           answer = "<table width = '100%' style = 'text-align:center'  class='table table-sm'><thead><tr><th scope='col'>건물</th><th scope='col'>강의실</th><th scope='col'>교시</th><th scope='col'>시간</th><th scope='col'>예약</th></tr></thead><tbody>";
           for(var i = 0; i < array.length; i++){
@@ -206,9 +203,10 @@
           }
           for(var i = 0; i < num.length; i++){
             // answer += reservation(num[i]);
+            setTimeout(function() {}, 100);
 
+            resAjax('http://localhost:3003/resAjax',rDate,rClass,rNum,num[i], answer);
 
-          sibal('http://localhost:3003/sibal',rDate,rClass,rNum,num[i], answer);
           if(i == num.length-1){
 
           }
@@ -222,13 +220,13 @@
         // answer = "";
 
 
-            //console.log(sibal('http://localhost:3003/sibal',rDate,rClass,rNum,array[i]));
-            answer += "<tr><td>"+rClass +"</td><td>"+ rNum +"</td><td>"+  num +"</td><td>"+ arrayt[num-1] +"</td><td><button type=\"button\" name=\"button\" onClick = rClick("+num+")>";
+            //console.log(resAjax('http://localhost:3003/resAjax',rDate,rClass,rNum,array[i]));
+            answer += "<tr><td>"+rClass +"</td><td>"+ rNum +"</td><td>"+  num +"</td><td>"+ arrayt[num-1] +"</td>";
 
             if(result2){
-              answer += "예약 가능";
+              answer += "<td><button type=\"button\" name=\"button\" onClick = rClickpos("+num+")>예약 가능";
             }else{
-              answer += "예약 불가";
+              answer += "<td><button type=\"button\" name=\"button\" onClick = rClickimpos("+num+")>예약 취소";
             }
             answer +="</button></td>"+"</tr>";
             // result += answer;
@@ -266,16 +264,38 @@
         return answer;
       }
 
-      function rClick(rtime){
+      function rClickpos(rtime){ //예약 가능 클릭함수
         var str = rDate + rClass + rNum + rtime;
+        stId = prompt("학번을 입력해주세요")
         $.post('/reservation/sub', {
-          key:str
+          key:str,
+          stId:stId
         },function(data, status){
             if(data=="OK"){
               alert("예약되었습니다.");
             }else{
               alert("이미 예약되어 있습니다.");
             }
+
+            var resultDiv = document.querySelector('.result');
+           resultDiv.innerHTML = "";
+          });
+      }
+      function rClickimpos(rtime){ //예약 취소 클릭함수
+        var str = rDate + rClass + rNum + rtime;
+        stId = prompt("학번을 입력해주세요")
+        $.post('/reservation/delete', {
+          key:str,
+          stId:stId
+        },function(data, status){
+            if(data=="OK"){
+              alert("취소되었습니다.");
+            }else{
+              alert("등록된 학번과 다릅니다.");
+            }
+
+            var resultDiv = document.querySelector('.result');
+           resultDiv.innerHTML = "";
           });
       }
       function getInputDayLabel(rDate) {

@@ -119,13 +119,13 @@
    }
    function del(){
       $.post('/room/del', {
-            stid:$("#stid").val()
+            stId:$("#stId").val()
          });
    }
 
 
    function textClear(){
-      $("#stid").val('').focus();
+      $("#stId").val('').focus();
    }
 </script>
 </head>
@@ -148,7 +148,7 @@
           <h2 style="margin-bottom:20px;">예약 취소</h2>
           <div class="input-container">
             <i class="fa fa-user icon"></i>
-            <input class="input-field" type="text" placeholder="학번 입력.." id="stid" name="stid">
+            <input class="input-field" type="text" placeholder="학번 입력.." id="stId" name="stId">
           </div>
 
         </form>
